@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% block title %}
+Blog - {{ post.subject }}
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col s8 offset-s2">
+        <div class="card">
+            <div class="card-content" id="post">
+                <span class="card-title post-subject">{{ post.subject }}</span>
+                <p class="post-date">{{ post.date }}</p>
+                <p class="post-body">{{ post.body }}</p>
+            </div>
+            <div class="card-action">
+                <div class="row">
+                    <div class="input-field col s12">
+                        <input type="hidden" name="post_id" value="{{post.id}}" id="post_id">
+                        <input id="username" name="username" type="text" value="username">
+                        <textarea id="body" class="materialize-textarea" name="body">{{ body }}</textarea>
+                        <label for="body">Add comment</label>
+                    </div>
+                    <div class="row">
+                        <div class="col s12 right">
+                            <button class="btn btn-raised waves-effect waves-light green" id="submit">Submit</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-action">
+                <ul class="collection" id="comments">
+                {% for comment in post.comments %}
+                <li class="collection-item">
+                    <span class="title">{{ comment.username }}</span>
+                    <span class="right">{{ comment.date }}</span>
+                    <p>{{ comment.body }}</p>
+                </li>
+                {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+{% block javascript %}
+{{ super() }}
+<script>
+$('#submit').on('click', function() {
+    var post_id = $('#post_id').val();
+    var username = $('#username').val();
+    var comment_body = $('#body').val();
+    $.post('/newcomment', {'body': comment_body, 'post_id': post_id, 'username': username})
+    .done(function(response) {
+        var li = $('<li>').addClass('collection-item');
+        var span = $('<span>').addClass('title').text(response.user);
+        $('#body').val('');
+	    var date = $('<span>').addClass('right').text('Just now');
+	    var controls = $('<span>').addClass('right');
+	    var edit = $('<i>').addClass('material-icons edit_comment').attr('data-comment-id', response.comment_id).text('edit');
+	    var i_delete = $('<i>').addClass('material-icons delete_comment').attr('data-comment-id', response.comment_id).text('delete');
+	    $(controls).append(edit).append(i_delete);
+        var p = $('<p>').text(comment_body);
+        $(li).append(span).append(date).append(controls).append(p);
+        $('#comments').prepend(li);
+    }).fail(function(response){
+        window.location = '/login';  
+    });
+});
+</script>
+{% endblock javascript %}

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+        {% block css %}
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.8/css/materialize.min.css">
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+        {% endblock css %}
+        <title>
+            {% block title %}{% endblock title %}
+        </title>
+    </head>
+    <body>
+      <nav class="light-blue lighten-1" role="navigation">
+        <div class="nav-wrapper container">
+            <a id="logo-container" href="/" class="brand-logo">Blog</a>
+            <ul class="right hide-on-med-and-down">
+                {% if 'username' in login_session %}
+                <li>
+                    <a href="/logout">Logout</a>
+                </li>
+                {% else %}
+                <li>
+                    <a href="/login">Login</a>
+                </li>
+                <li>
+                    <a href="/signup">Signup</a>
+                </li>
+                {% endif %}
+                <li>
+                    <a href="/newpost" class="btn btn-raised orange waves-effect waves-light white-text">Create Post</a>
+                </li>
+             </ul>
+    
+            <ul id="nav-mobile" class="side-nav">
+                {% if 'username' in login_session %}
+                <li>
+                    <a href="/logout">Logout</a>
+                </li>
+                {% else %}
+                <li>
+                    <a href="/login">Login</a>
+                </li>
+                <li>
+                    <a href="/signup">Signup</a>
+                </li>
+                {% endif %}
+                <li>
+                    <a href="/newpost" class="btn btn-raised orange waves-effect waves-light white-text">Create Post</a>
+                </li>
+            </ul>
+            <a href="#" data-activates="nav-mobile" class="button-collapse">
+                <i class="material-icons">menu</i>
+            </a>
+        </div>
+      </nav>
+      <main>
+          <div class="container">
+            {% block content %}{% endblock content %}
+          </div>
+      </main>
+      <footer class="page-footer orange">
+        <div class="container">
+          <div class="row">
+            <div class="col l6 s12">
+              <h5 class="white-text">Blog</h5>
+              <p class="grey-text text-lighten-4">
+                  C2 for malware
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="footer-copyright">
+          <div class="container">
+          
+          </div>
+        </div>
+      </footer>
+      {% block javascript %}
+      <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.8/js/materialize.min.js"></script>   
+      {% endblock javascript %}
+    </body>
+</html>

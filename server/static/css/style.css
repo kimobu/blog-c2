@@ -1,0 +1,37 @@
+body {
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
+}
+
+main {
+    flex: 1 0 auto;
+}
+
+.like {
+    cursor: pointer;
+}
+
+.like:hover {
+    color: rgb(255, 152, 0);
+}
+
+.edit_comment {
+    cursor: pointer;
+}
+
+.edit_comment:hover {
+    color: rgb(255, 152, 0);
+}
+
+.delete_comment {
+    cursor: pointer;
+}
+
+.delete_comment:hover {
+    color: rgb(255, 152, 0);
+}
+
+#blog {
+ margin-bottom: 20px;   
+}
