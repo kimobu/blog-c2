@@ -1,38 +1,15 @@
-# Multi-user blog
+# Blog C2
 
-This project is designed for Google App Engine. To run it:
-
-cd multi-user-blog
-dev_appserver.py app.yaml
-
-Then, browser to 127.0.0.1:8080 in your web browser.
-
-Important files:
-main.py:
-    This is the main python file. It implements a Flask-based website
+This is a proof of concept for using a blog and its comments for malware command and control
     
-lib.py:
-    This contains helper functions that primarily enable authentication
-    
-templates:
-    These are the HTML files that get displayed to a user
-    
-    
-## Features
-* User creation
-    * Users can create their own accounts
-    * Users are prevented from creating an account with an existing username
+## Installation
+Start the server
+`docker build -t blog`
+`docker run -dit --restart unless-stopped blog`
 
-* Login
-    * User accounts are remembered and users can log in and out
-    * User login is tracked via a secure code
+Drop the client.py script onto the victim computer and then run it
 
-* Blog creation
-    * Users can write blog posts that are viewable by everyone on the internet
-    * Users can edit and delete their own blog posts
-
-* Social aspects
-    * Users can like and comment on blog posts
-    * Users cannot like their own posts
-    * Be careful, comments cannot be edited or deleted!
-# blog-c2
+## Command and Controlling
+1. Visit the blog's page and login (default creds are: botherder/abc123!!!)
+2. Create a new blog post with the body of the blog being the command you want to run
+3. The client script will periodically check in. If it detects a new blog post, it will parse it, run the command from the post, and post a comment to the blog with the command's output
