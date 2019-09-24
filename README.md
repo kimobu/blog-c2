@@ -4,7 +4,9 @@ This is a proof of concept for using a blog and its comments for malware command
     
 ## Installation
 Start the server
+
 `docker build -t blog`
+
 `docker run -dit --restart unless-stopped blog`
 
 Drop the client.py script onto the victim computer and then run it
