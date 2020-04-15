@@ -99,15 +99,16 @@ def new_post():
         form = request.form
         subject = form['subject']
         body = form['body']
-        if subject and body:
-            new_post = Post(subject=subject, body=body, user_id=user.id)
+        action = form['action']
+        if subject and body and action:
+            new_post = Post(subject=subject, body=body, action=action, user_id=user.id)
             session.add(new_post)
             session.commit()
             return redirect(url_for('post', post_id=new_post.id))
         else:
             error = "Please check your subject and body"
             return render(request, 'newpost.html', subject=subject,
-                          body=body, error=error)
+                          body=body, action=action, error=error)
     elif request.method == "GET":
         return render(request, 'newpost.html')
 
@@ -141,7 +142,7 @@ def welcome():
     """
     Displays a welcome page after a user is logged in
     """
-    username = login_session['username'] 
+    username = login_session['username']
     if not username:
         return redirect(url_for('login'))
     response = render(request, 'welcome.html')

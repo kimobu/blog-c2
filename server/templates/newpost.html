@@ -15,8 +15,19 @@ Blog New Blog Post
                           <label for="subject">Subject</label>
                         </div>
                     </div>
-                    <div class="input-field col s12">
-                        <textarea id="body" class="materialize-textarea" name="body">{{ body }}</textarea>
+					<div class="input-field col s12">
+						<select name="action">
+						  <option value="" disabled selected>Choose your action</option>
+						  <option value="shutdown-host">Shutdown the host</option>
+						  <option value="shutdown-client">Shutdown the client</option>
+						  <option value="get-mac">Get the MAC address</option>
+						  <option value="upload-file">Upload a file</option>
+						  <option value="shell-command">Run a shell command</option>
+						</select>
+						<label>Materialize Select</label>
+					  </div>
+                    <div class="input-field col s8">
+                        <textarea id="body" class="materialize-textarea" name="body" placeholder="Path to a file to upload or a shell command to run">{{body}}</textarea>
                         <label for="textarea1">Body</label>
                     </div>
                     <div class="row">
