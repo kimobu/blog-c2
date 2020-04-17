@@ -15,7 +15,7 @@ import os
 app = Flask(__name__)
 app.config['DEBUG'] = True
 
-engine = create_engine('sqlite:///blog.db')
+engine = create_engine('sqlite:///blog.db', connect_args={'check_same_thread': False})
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
@@ -108,15 +108,15 @@ def new_post():
                     error = "Please check your and body"
                     return render(request, 'newpost.html', subject=subject,
                                   body=body, action=action, error=error)
-                if action == "download-file":
-                    try:
-                        with open(body, 'r+b') as f:
-                            newbody = base64.b64encode(f.read())
-                        body = newbody
-                    except:
-                        error = "Error opening file"
-                        return render(request, 'newpost.html', subject=subject,
-                                      body=body, action=action, error=error)
+            if action == "download-file":
+                try:
+                    with open(body, 'r+b') as f:
+                        newbody = base64.b64encode(f.read())
+                    body = newbody
+                except:
+                    error = "Error opening file"
+                    return render(request, 'newpost.html', subject=subject,
+                                  body=body, action=action, error=error)
 
             new_post = Post(subject=subject, body=body, action=action, user_id=user.id)
             session.add(new_post)
