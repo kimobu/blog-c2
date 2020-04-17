@@ -6,8 +6,8 @@ This is a proof of concept for using a blog and its comments for malware command
 Start the server
 
 `docker build -t blog`
-
 `docker run -dit --restart unless-stopped blog`
+If Docker doesn't work, `cd server; pip3 install -r requirements && python3 app.py`
 
 On the client, run `pip3 install -r client-requirements.txt`
 Drop the client.py script onto the victim computer and then run it
