@@ -14,7 +14,7 @@ class User(Base):
     id = Column(Integer, primary_key=True)
     username = Column(String(50))
     password = Column(String(50))
-    
+
 class Post(Base):
     __tablename__ = "posts"
     id = Column(Integer, primary_key=True)
@@ -22,6 +22,7 @@ class Post(Base):
     user = relationship(User, backref="posts")
     subject = Column(Text())
     body = Column(Text())
+    action = Column(Text())
     date = Column(DateTime, default=datetime.datetime.now)
 
 class Comment(Base):

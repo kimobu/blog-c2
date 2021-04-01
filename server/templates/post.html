@@ -10,7 +10,7 @@ Blog - {{ post.subject }}
             <div class="card-content" id="post">
                 <span class="card-title post-subject">{{ post.subject }}</span>
                 <p class="post-date">{{ post.date }}</p>
-                <p class="post-body">{{ post.body }}</p>
+                <p class="post-body" data-action="{{ post.action }}">{{ post.body }}</p>
             </div>
             <div class="card-action">
                 <div class="row">

